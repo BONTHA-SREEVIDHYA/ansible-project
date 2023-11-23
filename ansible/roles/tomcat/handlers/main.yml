@@ -1,0 +1,15 @@
+---
+
+- name: Reload Systemd
+
+  become: true
+
+  systemd:
+
+    name: tomcat
+
+    state: reloaded
+
+  tags: tomcat
+
+

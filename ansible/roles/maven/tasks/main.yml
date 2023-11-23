@@ -1,0 +1,109 @@
+---
+
+#- name: Add Java repository for Maven
+#
+#  become: true
+#
+#  apt_repository:
+#
+#    repo: ppa:webupd8team/java
+#
+#
+#
+- name: Add webupd8team Java PPA 
+
+  become: yes
+
+  shell: add-apt-repository ppa:webupd8team/java -y
+
+
+
+- name: Update apt package cache if needed
+
+  become: yes
+
+  apt:
+
+    update_cache: no
+
+    cache_valid_time: 3600 # Cache validity time in seconds (e.g., 3600 seconds = 1 hour)
+
+
+- name: Add webupd8team Java PPA
+
+  apt_repository:
+
+    repo: 'ppa:webupd8team/java'
+
+
+
+- name: Update apt package cache if needed
+
+  become: yes
+
+  apt:
+
+    update_cache: no
+
+    cache_valid_time: 3600 # Cache validity time in seconds (e.g., 3600 seconds = 1 hour)
+
+
+
+- name: Install default JDK for Maven
+
+  become: true
+
+  apt:
+
+    name:
+
+      - default-jdk
+
+    state: present
+
+
+
+- name: Download and extract Apache Maven
+
+  become: true
+
+  get_url:
+
+    url: https://archive.apache.org/dist/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz
+
+    dest: /opt/apache-maven-3.3.9-bin.tar.gz
+
+
+
+- name: Extract Maven
+
+  become: true
+
+  unarchive:
+
+    src: /opt/apache-maven-3.3.9-bin.tar.gz
+
+    dest: /opt
+
+    remote_src: true
+
+
+- name: Installing maven alternatives
+
+  become: yes
+
+  file:
+
+    src: /opt/apache-maven-3.3.9/bin/mvn
+
+    dest: /usr/bin/mvn
+
+    state: link
+
+    force: yes
+
+
+
+
+
+

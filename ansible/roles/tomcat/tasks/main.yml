@@ -1,0 +1,168 @@
+---
+
+- name: Update apt package cache if needed
+
+  become: yes
+
+  apt:
+
+    update_cache: no
+
+    cache_valid_time: 3600 # Cache validity time in seconds (e.g., 3600 seconds = 1 hour)
+
+- name: Install dependencies for Tomcat
+
+  become: true
+
+  apt:
+
+    name:
+
+      - default-jdk
+
+    state: present
+
+
+- name: Add Tomcat group
+
+  become: true
+
+  group:
+
+    name: tomcat
+
+    state: present
+
+
+
+- name: Add Tomcat user
+
+  become: true
+
+  user:
+
+    name: tomcat
+
+    system: true
+
+    shell: /bin/false
+
+    home: /opt/tomcat
+
+    group: tomcat
+
+
+
+- name: Download and extract Apache Tomcat
+
+  become: true
+
+  get_url:
+
+    url: https://dlcdn.apache.org/tomcat/tomcat-8/v8.5.96/bin/apache-tomcat-8.5.96.tar.gz
+
+    dest: /opt/tomcat/apache-tomcat-8.5.96.tar.gz
+
+
+
+- name: Extract Tomcat
+
+  become: true
+
+  unarchive:
+
+    src: /opt/tomcat/apache-tomcat-8.5.96.tar.gz
+
+    dest: /opt/tomcat
+
+    remote_src: true
+
+    owner: tomcat
+
+    group: tomcat
+
+- name: Change group ownership to 'tomcat' for /opt/tomcat
+
+  file:
+
+    path: /opt/tomcat
+
+    group: tomcat
+
+    recurse: yes
+
+
+
+- name: Set group read permissions for conf directory
+
+  file:
+
+    path: /opt/tomcat/conf
+
+    mode: "g+r"
+
+    recurse: yes
+
+
+
+- name: Set group execute permissions for conf directory
+
+  file:
+
+    path: /opt/tomcat/conf
+
+    mode: "g+x"
+
+    recurse: yes
+
+
+
+- name: Change ownership to 'tomcat' for specific directories
+
+  file:
+
+    path: "{{ item }}"
+
+    owner: tomcat
+
+    recurse: yes
+
+  loop:
+
+    - /opt/tomcat/webapps
+
+    - /opt/tomcat/work
+
+    - /opt/tomcat/temp
+
+    - /opt/tomcat/logs
+
+
+
+- name: Configure Tomcat
+
+  become: true
+
+  template:
+
+    src: tomcat.service.j2
+
+    dest: /etc/systemd/system/tomcat.service
+
+  notify:
+
+    - Reload Systemd
+
+
+
+- name: Start Tomcat service
+
+  become: true
+
+  systemd:
+
+    name: tomcat
+
+    state: started
+
+  tags: tomcat

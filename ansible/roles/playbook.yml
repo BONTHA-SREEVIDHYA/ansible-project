@@ -1,0 +1,19 @@
+---
+
+- name: Setup Environment
+
+  hosts: all
+
+  become: true
+
+  gather_facts: true
+
+
+
+  roles:
+
+    - tomcat
+
+    - maven
+
+
